@@ -1,38 +1,4 @@
-local whitelist = {
-    ["160917154"] = true,
-    ["5787826442"] = true,
-    ["2697227229"] = true,
-    ["5082804025"] = true,
-    ["4880618871"] = true,
-    ["5270906186"] = true,
-    ["5065330925"] = true,
-    ["6186797376"] = true,
-    ["6194285842"] = true,
-    ["6192081505"] = true,
-    ["4511505836"] = true,
-    ["2551474547"] = true,
-    ["2908327541"] = true,
-    ["1483036312"] = true,
-    ["187385437"] = true,
-}
 
--- Step 2: Function to Check Against the Whitelist
-local function isWhitelisted(userId)
-    return whitelist[userId] ~= nil
-end
-
--- Step 3: Implement the Check in Your Script
-local player = game.Players.LocalPlayer
-local userId = tostring(player.UserId) -- Get the user's ID as a string
-
-if isWhitelisted(userId) then
-    print("Access granted. Welcome " .. player.Name .. "!")
-    -- Proceed with the rest of the script for authorized users
-else
-    print("Access denied. " .. player.Name .. " is not whitelisted.")
-    -- Block access or terminate the script for unauthorized users
-    return
-end
 
 
 
