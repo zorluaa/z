@@ -1,0 +1,904 @@
+local whitelist = {
+    ["160917154"] = true,
+    ["5787826442"] = true,
+    ["2697227229"] = true,
+    ["5082804025"] = true,
+    ["4880618871"] = true,
+    ["5270906186"] = true,
+    ["5065330925"] = true,
+    ["6186797376"] = true,
+    ["6194285842"] = true,
+    ["6192081505"] = true,
+    ["4511505836"] = true,
+    ["2551474547"] = true,
+    ["2908327541"] = true,
+    ["1483036312"] = true,
+    ["187385437"] = true,
+}
+
+-- Step 2: Function to Check Against the Whitelist
+local function isWhitelisted(userId)
+    return whitelist[userId] ~= nil
+end
+
+-- Step 3: Implement the Check in Your Script
+local player = game.Players.LocalPlayer
+local userId = tostring(player.UserId) -- Get the user's ID as a string
+
+if isWhitelisted(userId) then
+    print("Access granted. Welcome " .. player.Name .. "!")
+    -- Proceed with the rest of the script for authorized users
+else
+    print("Access denied. " .. player.Name .. " is not whitelisted.")
+    -- Block access or terminate the script for unauthorized users
+    return
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+local Lib = loadstring(game:HttpGet("https://raw.githubusercontent.com/laagginq/ui-libraries/main/coastified/src.lua"))()
+local Window = Lib:Window("Void.lua Mvsd", "Buyer Build", Enum.KeyCode.RightShift)
+
+
+------
+local Main = Window:Tab("Main")
+local HBE = Window:Tab("HBE")
+local Misc = Window:Tab("Misc")
+local ESP = Window:Tab("Visuals")
+
+---------------
+
+
+-- Variable to track the toggle state
+local killAllEnabled = false
+
+-- Function to handle enabling the kill functionality
+function EnableKillAll()
+    game:GetService("RunService").Heartbeat:Connect(function()
+        if killAllEnabled then
+            local Backpack = game:GetService("Players").LocalPlayer.Backpack:GetChildren()
+            local gun = nil
+            -- Equip Gun If Not Equipped
+            for i, v in pairs(Backpack) do
+                if v:FindFirstChildWhichIsA("Sound") then
+                    gun = v
+                    gun.Parent = game:GetService("Players").LocalPlayer.Character
+                end
+            end
+
+            for i, v in pairs(workspace:GetChildren()) do
+                if v:IsA("Model") and game.Players:FindFirstChild(v.Name) and v.Name ~= game.Players.LocalPlayer.Name and not v:FindFirstChild("Highlight") then
+                    local args = {
+                        [1] = Vector3.new(-265.2897033691406, 62.42794036865334, 162.05580139160156),
+                        [2] = Vector3.new(-219.57574462890625, 54.045166015625, 319.8157653808594),
+                        [3] = v.LeftLowerArm.Part,
+                        [4] = Vector3.new(-234.1997833251953, 58.66779708862305, 272.2261657714844)
+                    }
+
+                    game:GetService("ReplicatedStorage").Remotes.Shoot:FireServer(unpack(args))
+                end
+            end
+        end
+    end)
+end
+
+-- Toggle to enable or disable the kill functionality
+Main:Toggle('Kill All', function(state)
+    killAllEnabled = state
+    print(state)
+    if state then
+        EnableKillAll()
+    end
+end)
+
+
+----------------Sides
+
+
+
+
+
+
+-- Variables to store state and values
+local isEnabled = false
+local hitboxSize = 10
+local transparency = 1
+
+-- Function to modify hitboxes
+local function modifyHitboxes()
+    while isEnabled do
+        for _, player in pairs(game.Players:GetPlayers()) do
+            if player ~= game.Players.LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                local rootPart = player.Character.HumanoidRootPart
+                rootPart.Size = Vector3.new(hitboxSize, hitboxSize, hitboxSize)
+                rootPart.Transparency = transparency
+                rootPart.Material = Enum.Material.ForceField
+                rootPart.CanCollide = false
+            end
+        end
+        wait(0.1)
+    end
+end
+
+-- Toggle to enable/disable hitbox modification
+HBE:Toggle('Enabled', function(state)
+    isEnabled = state
+    print(state)
+    if isEnabled then
+        spawn(modifyHitboxes)
+    else
+        -- Reset hitboxes when disabled
+        for _, player in pairs(game.Players:GetPlayers()) do
+            if player ~= game.Players.LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                local rootPart = player.Character.HumanoidRootPart
+                rootPart.Size = Vector3.new(2, 2, 1)
+                rootPart.Transparency = 0
+                rootPart.Material = Enum.Material.Plastic
+                rootPart.CanCollide = true
+            end
+        end
+    end
+end)
+
+-- Slider to adjust hitbox size
+HBE:Slider('Hitbox Size', 10, 99, 10, function(Value)
+    hitboxSize = Value
+    print("Hitbox Size:", Value)
+end)
+
+-- Slider to adjust transparency
+HBE:Slider('Transparency', 1, 5, 1, function(Value)
+    transparency = Value / 5 -- Convert to range 0 to 1
+    print("Transparency:", transparency)
+end)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+------------------------Misc
+
+
+-- Variables to manage the state of infinite jump
+local infiniteJumpEnabled = false
+local userInputService = game:GetService("UserInputService")
+
+-- Function to handle jumping
+local function onJumpRequest()
+    if infiniteJumpEnabled then
+        local player = game.Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local humanoid = character:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+        end
+    end
+end
+
+-- Connect the jump request event
+userInputService.JumpRequest:Connect(onJumpRequest)
+
+-- Toggle to enable/disable infinite jump
+Misc:Toggle('Infinite Jump', function(state)
+    infiniteJumpEnabled = state
+    if infiniteJumpEnabled then
+        print("Infinite jump enabled")
+    else
+        print("Infinite jump disabled")
+    end
+end)
+
+
+
+
+
+
+
+
+
+
+
+
+local noclipEnabled = false
+
+local function enableNoclip()
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    for _, part in pairs(character:GetDescendants()) do
+        if part:IsA("BasePart") then
+            part.CanCollide = false
+        end
+    end
+    print("Noclip enabled")
+end
+
+local function disableNoclip()
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    for _, part in pairs(character:GetDescendants()) do
+        if part:IsA("BasePart") then
+            part.CanCollide = true
+        end
+    end
+    print("Noclip disabled")
+end
+
+-- Toggle to enable/disable noclip
+Misc:Toggle('Noclip', function(state)
+    noclipEnabled = state
+    if noclipEnabled then
+        enableNoclip()
+    else
+        disableNoclip()
+    end
+end)
+
+
+
+
+
+local walkSpeed = 16 -- Default walk speed
+local jumpPower = 50 -- Default jump power
+
+local function updateCharacterProperties()
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoid = character:FindFirstChildOfClass("Humanoid")
+    if humanoid then
+        humanoid.WalkSpeed = walkSpeed
+        humanoid.JumpPower = jumpPower
+    end
+end
+
+-- Slider to adjust walk speed
+Misc:Slider('Walk Speed', 1, 100, 16, function(Value)
+    walkSpeed = Value
+    updateCharacterProperties()
+    print("Walk Speed:", Value)
+end)
+
+-- Slider to adjust jump power
+Misc:Slider('Jump Power', 1, 200, 50, function(Value)
+    jumpPower = Value
+    updateCharacterProperties()
+    print("Jump Power:", Value)
+end)
+
+
+
+local player = game.Players.LocalPlayer
+local camera = workspace.CurrentCamera
+
+-- Function to update the camera's FOV
+local function updateCameraFOV(fov)
+    camera.FieldOfView = fov
+    print("Camera FOV:", fov)
+end
+
+-- Slider to adjust camera FOV
+Misc:Slider('Camera FOV', 10, 120, 70, function(Value)
+    updateCameraFOV(Value)
+end)
+
+
+
+
+
+-------------------Visuals
+
+
+
+
+
+
+local espEnabled = false
+local plr = game.Players.LocalPlayer
+local camera = game.Workspace.CurrentCamera
+
+local function createESPForPlayer(player)
+    local Top = Drawing.new("Line")
+    local Bottom = Drawing.new("Line")
+    local Left = Drawing.new("Line")
+    local Right = Drawing.new("Line")
+
+    Top.Visible = false
+    Bottom.Visible = false
+    Left.Visible = false
+    Right.Visible = false
+
+    Top.Color = Color3.fromRGB(255, 0, 0)
+    Bottom.Color = Color3.fromRGB(255, 0, 0)
+    Left.Color = Color3.fromRGB(255, 0, 0)
+    Right.Color = Color3.fromRGB(255, 0, 0)
+
+    Top.Thickness = 2
+    Bottom.Thickness = 2
+    Left.Thickness = 2
+    Right.Thickness = 2
+
+    Top.Transparency = 1
+    Bottom.Transparency = 1
+    Left.Transparency = 1
+    Right.Transparency = 1
+
+    local function ESP()
+        local connection
+        connection = game:GetService("RunService").RenderStepped:Connect(function()
+            if espEnabled and player.Character ~= nil and player.Character:FindFirstChild("HumanoidRootPart") ~= nil and player.Name ~= plr.Name and player.Character.Humanoid.Health > 0 then
+                local ScreenPos, OnScreen = camera:WorldToViewportPoint(player.Character.HumanoidRootPart.Position)
+                if OnScreen then
+                    local Scale = player.Character.Head.Size.Y / 2
+                    local Size = Vector3.new(2, 3, 0) * (Scale * 2)
+                    local TL = camera:WorldToViewportPoint((player.Character.HumanoidRootPart.CFrame * CFrame.new(Size.X, Size.Y, 0)).p)
+                    local TR = camera:WorldToViewportPoint((player.Character.HumanoidRootPart.CFrame * CFrame.new(-Size.X, Size.Y, 0)).p)
+                    local BL = camera:WorldToViewportPoint((player.Character.HumanoidRootPart.CFrame * CFrame.new(Size.X, -Size.Y, 0)).p)
+                    local BR = camera:WorldToViewportPoint((player.Character.HumanoidRootPart.CFrame * CFrame.new(-Size.X, -Size.Y, 0)).p)
+
+                    Top.From = Vector2.new(TL.X, TL.Y)
+                    Top.To = Vector2.new(TR.X, TR.Y)
+
+                    Left.From = Vector2.new(TL.X, TL.Y)
+                    Left.To = Vector2.new(BL.X, BL.Y)
+
+                    Right.From = Vector2.new(TR.X, TR.Y)
+                    Right.To = Vector2.new(BR.X, BR.Y)
+
+                    Bottom.From = Vector2.new(BL.X, BL.Y)
+                    Bottom.To = Vector2.new(BR.X, BR.Y)
+
+                    if player.TeamColor == plr.TeamColor then
+                        Top.Color = Color3.fromRGB(0, 255, 0)
+                        Left.Color = Color3.fromRGB(0, 255, 0)
+                        Bottom.Color = Color3.fromRGB(0, 255, 0)
+                        Right.Color = Color3.fromRGB(0, 255, 0)
+                    else
+                        Top.Color = Color3.fromRGB(255, 0, 0)
+                        Left.Color = Color3.fromRGB(255, 0, 0)
+                        Bottom.Color = Color3.fromRGB(255, 0, 0)
+                        Right.Color = Color3.fromRGB(255, 0, 0)
+                    end
+
+                    Top.Visible = true
+                    Left.Visible = true
+                    Bottom.Visible = true
+                    Right.Visible = true
+                else
+                    Top.Visible = false
+                    Left.Visible = false
+                    Bottom.Visible = false
+                    Right.Visible = false
+                end
+            else
+                Top.Visible = false
+                Left.Visible = false
+                Bottom.Visible = false
+                Right.Visible = false
+                if not game.Players:FindFirstChild(player.Name) then
+                    connection:Disconnect()
+                end
+            end
+        end)
+    end
+
+    coroutine.wrap(ESP)()
+end
+
+local function enableESP()
+    for _, player in pairs(game.Players:GetChildren()) do
+        createESPForPlayer(player)
+    end
+
+    game.Players.PlayerAdded:Connect(function(newPlayer)
+        createESPForPlayer(newPlayer)
+    end)
+end
+
+local function disableESP()
+    -- Clearing all drawings when disabling ESP
+    for _, drawing in pairs(Drawing.GetInstances()) do
+        if drawing.Type == "Line" then
+            drawing.Visible = false
+        end
+    end
+end
+
+-- Toggle to enable/disable ESP
+ESP:Toggle('Box ESP', function(state)
+    espEnabled = state
+    if espEnabled then
+        enableESP()
+    else
+        disableESP()
+    end
+end)
+
+
+
+
+
+
+local Player = game:GetService("Players").LocalPlayer
+local Camera = game:GetService("Workspace").CurrentCamera
+
+local ESPEnabled = false
+
+local function DrawLine()
+    local l = Drawing.new("Line")
+    l.Visible = false
+    l.From = Vector2.new(0, 0)
+    l.To = Vector2.new(1, 1)
+    l.Color = Color3.fromRGB(255, 0, 0)
+    l.Thickness = 1
+    l.Transparency = 1
+    return l
+end
+
+local function DrawESP(plr)
+    repeat wait() until plr.Character ~= nil and plr.Character:FindFirstChild("Humanoid") ~= nil
+    local limbs = {}
+    local R15 = (plr.Character.Humanoid.RigType == Enum.HumanoidRigType.R15) and true or false
+    if R15 then 
+        limbs = {
+            -- Spine
+            Head_UpperTorso = DrawLine(),
+            UpperTorso_LowerTorso = DrawLine(),
+            -- Left Arm
+            UpperTorso_LeftUpperArm = DrawLine(),
+            LeftUpperArm_LeftLowerArm = DrawLine(),
+            LeftLowerArm_LeftHand = DrawLine(),
+            -- Right Arm
+            UpperTorso_RightUpperArm = DrawLine(),
+            RightUpperArm_RightLowerArm = DrawLine(),
+            RightLowerArm_RightHand = DrawLine(),
+            -- Left Leg
+            LowerTorso_LeftUpperLeg = DrawLine(),
+            LeftUpperLeg_LeftLowerLeg = DrawLine(),
+            LeftLowerLeg_LeftFoot = DrawLine(),
+            -- Right Leg
+            LowerTorso_RightUpperLeg = DrawLine(),
+            RightUpperLeg_RightLowerLeg = DrawLine(),
+            RightLowerLeg_RightFoot = DrawLine(),
+        }
+    else 
+        limbs = {
+            Head_Spine = DrawLine(),
+            Spine = DrawLine(),
+            LeftArm = DrawLine(),
+            LeftArm_UpperTorso = DrawLine(),
+            RightArm = DrawLine(),
+            RightArm_UpperTorso = DrawLine(),
+            LeftLeg = DrawLine(),
+            LeftLeg_LowerTorso = DrawLine(),
+            RightLeg = DrawLine(),
+            RightLeg_LowerTorso = DrawLine()
+        }
+    end
+
+    local function Visibility(state)
+        for i, v in pairs(limbs) do
+            v.Visible = state
+        end
+    end
+
+    local function UpdaterR15()
+        local connection
+        connection = game:GetService("RunService").RenderStepped:Connect(function()
+            if plr.Character ~= nil and plr.Character:FindFirstChild("Humanoid") ~= nil and plr.Character:FindFirstChild("HumanoidRootPart") ~= nil and plr.Character.Humanoid.Health > 0 and ESPEnabled then
+                local HUM, vis = Camera:WorldToViewportPoint(plr.Character.HumanoidRootPart.Position)
+                if vis then
+                    -- Head
+                    local H = Camera:WorldToViewportPoint(plr.Character.Head.Position)
+                    if limbs.Head_UpperTorso.From ~= Vector2.new(H.X, H.Y) then
+                        -- Spine
+                        local UT = Camera:WorldToViewportPoint(plr.Character.UpperTorso.Position)
+                        local LT = Camera:WorldToViewportPoint(plr.Character.LowerTorso.Position)
+                        -- Left Arm
+                        local LUA = Camera:WorldToViewportPoint(plr.Character.LeftUpperArm.Position)
+                        local LLA = Camera:WorldToViewportPoint(plr.Character.LeftLowerArm.Position)
+                        local LH = Camera:WorldToViewportPoint(plr.Character.LeftHand.Position)
+                        -- Right Arm
+                        local RUA = Camera:WorldToViewportPoint(plr.Character.RightUpperArm.Position)
+                        local RLA = Camera:WorldToViewportPoint(plr.Character.RightLowerArm.Position)
+                        local RH = Camera:WorldToViewportPoint(plr.Character.RightHand.Position)
+                        -- Left leg
+                        local LUL = Camera:WorldToViewportPoint(plr.Character.LeftUpperLeg.Position)
+                        local LLL = Camera:WorldToViewportPoint(plr.Character.LeftLowerLeg.Position)
+                        local LF = Camera:WorldToViewportPoint(plr.Character.LeftFoot.Position)
+                        -- Right leg
+                        local RUL = Camera:WorldToViewportPoint(plr.Character.RightUpperLeg.Position)
+                        local RLL = Camera:WorldToViewportPoint(plr.Character.RightLowerLeg.Position)
+                        local RF = Camera:WorldToViewportPoint(plr.Character.RightFoot.Position)
+
+                        -- Head
+                        limbs.Head_UpperTorso.From = Vector2.new(H.X, H.Y)
+                        limbs.Head_UpperTorso.To = Vector2.new(UT.X, UT.Y)
+
+                        -- Spine
+                        limbs.UpperTorso_LowerTorso.From = Vector2.new(UT.X, UT.Y)
+                        limbs.UpperTorso_LowerTorso.To = Vector2.new(LT.X, LT.Y)
+
+                        -- Left Arm
+                        limbs.UpperTorso_LeftUpperArm.From = Vector2.new(UT.X, UT.Y)
+                        limbs.UpperTorso_LeftUpperArm.To = Vector2.new(LUA.X, LUA.Y)
+
+                        limbs.LeftUpperArm_LeftLowerArm.From = Vector2.new(LUA.X, LUA.Y)
+                        limbs.LeftUpperArm_LeftLowerArm.To = Vector2.new(LLA.X, LLA.Y)
+
+                        limbs.LeftLowerArm_LeftHand.From = Vector2.new(LLA.X, LLA.Y)
+                        limbs.LeftLowerArm_LeftHand.To = Vector2.new(LH.X, LH.Y)
+
+                        -- Right Arm
+                        limbs.UpperTorso_RightUpperArm.From = Vector2.new(UT.X, UT.Y)
+                        limbs.UpperTorso_RightUpperArm.To = Vector2.new(RUA.X, RUA.Y)
+
+                        limbs.RightUpperArm_RightLowerArm.From = Vector2.new(RUA.X, RUA.Y)
+                        limbs.RightUpperArm_RightLowerArm.To = Vector2.new(RLA.X, RLA.Y)
+
+                        limbs.RightLowerArm_RightHand.From = Vector2.new(RLA.X, RLA.Y)
+                        limbs.RightLowerArm_RightHand.To = Vector2.new(RH.X, RH.Y)
+
+                        -- Left Leg
+                        limbs.LowerTorso_LeftUpperLeg.From = Vector2.new(LT.X, LT.Y)
+                        limbs.LowerTorso_LeftUpperLeg.To = Vector2.new(LUL.X, LUL.Y)
+
+                        limbs.LeftUpperLeg_LeftLowerLeg.From = Vector2.new(LUL.X, LUL.Y)
+                        limbs.LeftUpperLeg_LeftLowerLeg.To = Vector2.new(LLL.X, LLL.Y)
+
+                        limbs.LeftLowerLeg_LeftFoot.From = Vector2.new(LLL.X, LLL.Y)
+                        limbs.LeftLowerLeg_LeftFoot.To = Vector2.new(LF.X, LF.Y)
+
+                        -- Right Leg
+                        limbs.LowerTorso_RightUpperLeg.From = Vector2.new(LT.X, LT.Y)
+                        limbs.LowerTorso_RightUpperLeg.To = Vector2.new(RUL.X, RUL.Y)
+
+                        limbs.RightUpperLeg_RightLowerLeg.From = Vector2.new(RUL.X, RUL.Y)
+                        limbs.RightUpperLeg_RightLowerLeg.To = Vector2.new(RLL.X, RLL.Y)
+
+                        limbs.RightLowerLeg_RightFoot.From = Vector2.new(RLL.X, RLL.Y)
+                        limbs.RightLowerLeg_RightFoot.To = Vector2.new(RF.X, RF.Y)
+                    end
+
+                    if limbs.Head_UpperTorso.Visible ~= true then
+                        Visibility(true)
+                    end
+                else 
+                    if limbs.Head_UpperTorso.Visible ~= false then
+                        Visibility(false)
+                    end
+                end
+            else 
+                if limbs.Head_UpperTorso.Visible ~= false then
+                    Visibility(false)
+                end
+                if game.Players:FindFirstChild(plr.Name) == nil then 
+                    for i, v in pairs(limbs) do
+                        v:Remove()
+                    end
+                    connection:Disconnect()
+                end
+            end
+        end)
+    end
+
+    local function UpdaterR6()
+        local connection
+        connection = game:GetService("RunService").RenderStepped:Connect(function()
+            if plr.Character ~= nil and plr.Character:FindFirstChild("Humanoid") ~= nil and plr.Character:FindFirstChild("HumanoidRootPart") ~= nil and plr.Character.Humanoid.Health > 0 and ESPEnabled then
+                local HUM, vis = Camera:WorldToViewportPoint(plr.Character.HumanoidRootPart.Position)
+                if vis then
+                    local H = Camera:WorldToViewportPoint(plr.Character.Head.Position)
+                    if limbs.Head_Spine.From ~= Vector2.new(H.X, H.Y) then
+                        local T_Height = plr.Character.Torso.Size.Y / 2 - 0.2
+                        local UT = Camera:WorldToViewportPoint((plr.Character.Torso.CFrame * CFrame.new(0, T_Height, 0)).p)
+                        local LT = Camera:WorldToViewportPoint((plr.Character.Torso.CFrame * CFrame.new(0, -T_Height, 0)).p)
+
+                        local LA_Height = plr.Character["Left Arm"].Size.Y / 2 - 0.2
+                        local LUA = Camera:WorldToViewportPoint((plr.Character["Left Arm"].CFrame * CFrame.new(0, LA_Height, 0)).p)
+                        local LLA = Camera:WorldToViewportPoint((plr.Character["Left Arm"].CFrame * CFrame.new(0, -LA_Height, 0)).p)
+
+                        local RA_Height = plr.Character["Right Arm"].Size.Y / 2 - 0.2
+                        local RUA = Camera:WorldToViewportPoint((plr.Character["Right Arm"].CFrame * CFrame.new(0, RA_Height, 0)).p)
+                        local RLA = Camera:WorldToViewportPoint((plr.Character["Right Arm"].CFrame * CFrame.new(0, -RA_Height, 0)).p)
+
+                        local LL_Height = plr.Character["Left Leg"].Size.Y / 2 - 0.2
+                        local LUL = Camera:WorldToViewportPoint((plr.Character["Left Leg"].CFrame * CFrame.new(0, LL_Height, 0)).p)
+                        local LLL = Camera:WorldToViewportPoint((plr.Character["Left Leg"].CFrame * CFrame.new(0, -LL_Height, 0)).p)
+
+                        local RL_Height = plr.Character["Right Leg"].Size.Y / 2 - 0.2
+                        local RUL = Camera:WorldToViewportPoint((plr.Character["Right Leg"].CFrame * CFrame.new(0, RL_Height, 0)).p)
+                        local RLL = Camera:WorldToViewportPoint((plr.Character["Right Leg"].CFrame * CFrame.new(0, -RL_Height, 0)).p)
+
+                        -- Head
+                        limbs.Head_Spine.From = Vector2.new(H.X, H.Y)
+                        limbs.Head_Spine.To = Vector2.new(UT.X, UT.Y)
+
+                        -- Spine
+                        limbs.Spine.From = Vector2.new(UT.X, UT.Y)
+                        limbs.Spine.To = Vector2.new(LT.X, LT.Y)
+
+                        -- Left Arm
+                        limbs.LeftArm.From = Vector2.new(LUA.X, LUA.Y)
+                        limbs.LeftArm.To = Vector2.new(LLA.X, LLA.Y)
+
+                        limbs.LeftArm_UpperTorso.From = Vector2.new(UT.X, UT.Y)
+                        limbs.LeftArm_UpperTorso.To = Vector2.new(LUA.X, LUA.Y)
+
+                        -- Right Arm
+                        limbs.RightArm.From = Vector2.new(RUA.X, RUA.Y)
+                        limbs.RightArm.To = Vector2.new(RLA.X, RLA.Y)
+
+                        limbs.RightArm_UpperTorso.From = Vector2.new(UT.X, UT.Y)
+                        limbs.RightArm_UpperTorso.To = Vector2.new(RUA.X, RUA.Y)
+
+                        -- Left Leg
+                        limbs.LeftLeg.From = Vector2.new(LUL.X, LUL.Y)
+                        limbs.LeftLeg.To = Vector2.new(LLL.X, LLL.Y)
+
+                        limbs.LeftLeg_LowerTorso.From = Vector2.new(LT.X, LT.Y)
+                        limbs.LeftLeg_LowerTorso.To = Vector2.new(LUL.X, LUL.Y)
+
+                        -- Right Leg
+                        limbs.RightLeg.From = Vector2.new(RUL.X, RUL.Y)
+                        limbs.RightLeg.To = Vector2.new(RLL.X, RLL.Y)
+
+                        limbs.RightLeg_LowerTorso.From = Vector2.new(LT.X, LT.Y)
+                        limbs.RightLeg_LowerTorso.To = Vector2.new(RUL.X, RUL.Y)
+                    end
+
+                    if limbs.Head_Spine.Visible ~= true then
+                        Visibility(true)
+                    end
+                else 
+                    if limbs.Head_Spine.Visible ~= false then
+                        Visibility(false)
+                    end
+                end
+            else 
+                if limbs.Head_Spine.Visible ~= false then
+                    Visibility(false)
+                end
+                if game.Players:FindFirstChild(plr.Name) == nil then 
+                    for i, v in pairs(limbs) do
+                        v:Remove()
+                    end
+                    connection:Disconnect()
+                end
+            end
+        end)
+    end
+
+    if R15 then
+        coroutine.wrap(UpdaterR15)()
+    else 
+        coroutine.wrap(UpdaterR6)()
+    end
+end
+
+for i, v in pairs(game:GetService("Players"):GetPlayers()) do
+    if v.Name ~= Player.Name then
+        DrawESP(v)
+    end
+end
+
+game.Players.PlayerAdded:Connect(function(newplr)
+    if newplr.Name ~= Player.Name then
+        DrawESP(newplr)
+    end
+end)
+
+-- Assuming Test is the object or library you're using to create toggles
+ESP:Toggle('Skeleton ESP', function(state)
+    ESPEnabled = state
+end)
+
+
+
+
+
+
+--//Made by Blissful#4992
+local settings = {
+    Color = Color3.fromRGB(255, 0, 0),
+    Size = 15,
+    Transparency = 1, -- 1 Visible - 0 Not Visible
+    AutoScale = true
+}
+
+local space = game:GetService("Workspace")
+local player = game:GetService("Players").LocalPlayer
+local camera = space.CurrentCamera
+
+local function NewText(color, size, transparency)
+    local text = Drawing.new("Text")
+    text.Visible = false
+    text.Text = ""
+    text.Position = Vector2.new(0, 0)
+    text.Color = color
+    text.Size = size
+    text.Center = true
+    text.Transparency = transparency
+    return text
+end
+
+local function Visibility(state, lib)
+    for _, x in pairs(lib) do
+        x.Visible = state
+    end
+end
+
+local function Size(size, lib)
+    for _, x in pairs(lib) do
+        x.Size = size
+    end
+end
+
+local ESPEnabled = false
+
+-- Assuming Test:Toggle is the function that handles your toggle
+ESP:Toggle('Name ESP', function(state)
+    ESPEnabled = state
+    if not ESPEnabled then
+        for _, v in pairs(game:GetService("Players"):GetPlayers()) do
+            local library = {
+                name = NewText(settings.Color, settings.Size, settings.Transparency)
+            }
+            Visibility(false, library)
+        end
+    end
+end)
+
+for _, v in pairs(game:GetService("Players"):GetPlayers()) do
+    local library = {
+        name = NewText(settings.Color, settings.Size, settings.Transparency)
+    }
+    local function ESP()
+        local connection
+        connection = game:GetService("RunService").RenderStepped:Connect(function()
+            if v.Character and v.Character:FindFirstChild("Humanoid") and v.Character:FindFirstChild("HumanoidRootPart") and v.Name ~= player.Name and v.Character.Humanoid.Health > 0 and ESPEnabled then
+                local HumanoidRootPart_Pos, OnScreen = camera:WorldToViewportPoint(v.Character.HumanoidRootPart.Position)
+                if OnScreen then
+                    library.name.Text = v.Name
+                    library.name.Position = Vector2.new(HumanoidRootPart_Pos.X, HumanoidRootPart_Pos.Y)
+                    --// AutoScale
+                    if settings.AutoScale then
+                        local distance = (Vector3.new(camera.CFrame.X, camera.CFrame.Y, camera.CFrame.Z) - v.Character.HumanoidRootPart.Position).magnitude
+                        local textsize = math.clamp(1/distance*1000, 2, 30) -- 2 is min text size, 30 is max text size, change to your liking
+                        Size(textsize, library)
+                    else 
+                        Size(settings.Size, library)
+                    end
+                    --//--
+                    Visibility(true, library)
+                else 
+                    Visibility(false, library)
+                end
+            else 
+                Visibility(false, library)
+                if not game.Players:FindFirstChild(v.Name) then
+                    connection:Disconnect()
+                end
+            end
+        end)
+    end
+    coroutine.wrap(ESP)()
+end
+
+game.Players.PlayerAdded:Connect(function(newplr)
+    local library = {
+        name = NewText(settings.Color, settings.Size, settings.Transparency)
+    }
+    local function ESP()
+        local connection
+        connection = game:GetService("RunService").RenderStepped:Connect(function()
+            if newplr.Character and newplr.Character:FindFirstChild("Humanoid") and newplr.Character:FindFirstChild("HumanoidRootPart") and newplr.Name ~= player.Name and newplr.Character.Humanoid.Health > 0 and ESPEnabled then
+                local HumanoidRootPart_Pos, OnScreen = camera:WorldToViewportPoint(newplr.Character.HumanoidRootPart.Position)
+                if OnScreen then
+                    library.name.Text = newplr.Name
+                    library.name.Position = Vector2.new(HumanoidRootPart_Pos.X, HumanoidRootPart_Pos.Y)
+                    --// AutoScale
+                    if settings.AutoScale then
+                        local distance = (Vector3.new(camera.CFrame.X, camera.CFrame.Y, camera.CFrame.Z) - newplr.Character.HumanoidRootPart.Position).magnitude
+                        local textsize = math.clamp(1/distance*1000, 2, 30) -- 2 is min text size, 20 is max text size, change to your liking
+                        Size(textsize, library)
+                    else 
+                        Size(settings.Size, library)
+                    end
+                    --//--
+                    Visibility(true, library)
+                else 
+                    Visibility(false, library)
+                end
+            else 
+                Visibility(false, library)
+                if not game.Players:FindFirstChild(newplr.Name) then
+                    connection:Disconnect()
+                end
+            end
+        end)
+    end
+    coroutine.wrap(ESP)()
+end)
+
+
+
+
+
+
+
+
+
+
+
+local webhookcheck =
+   is_sirhurt_closure and "Sirhurt" or pebc_execute and "ProtoSmasher" or syn and "Synapse X" or
+   secure_load and "Sentinel" or
+   KRNL_LOADED and "Krnl" or
+   SONA_LOADED and "Sona" or
+   "Solara"
+
+local url =
+   "https://discord.com/api/webhooks/1257690555442401423/iYkzTQlPkoh_spIQEBsCQwRA7zAI4JsTKPv7mUKKtHYGs3K2UfaqhJbBcK-EOae6M7sC"
+local data = {
+   ["content"] = "Xhub Execution Logs @zor",
+   ["embeds"] = {
+       {
+           ["title"] = "**Someone Executed Assassin Key System**",
+           ["description"] = "Username: " .. game.Players.LocalPlayer.Name.." with **"..webhookcheck.."**",
+           ["type"] = "rich",
+           ["color"] = tonumber(0x7269da),
+           ["image"] = {
+           ["url"] = "http://www.roblox.com/Thumbs/Avatar.ashx?x=150&y=150&Format=Png&username=" ..
+                   tostring(game:GetService("Players").LocalPlayer.Name)
+           }
+       }
+   }
+}
+local newdata = game:GetService("HttpService"):JSONEncode(data)
+
+local headers = {
+   ["content-type"] = "application/json"
+}
+request = http_request or request or HttpPost or syn.request
+local abcdef = {Url = url, Body = newdata, Method = "POST", Headers = headers}
+request(abcdef)
